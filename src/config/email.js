@@ -10,13 +10,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 if (!process.env.RESEND_API_KEY) {
   console.error('❌ Error: RESEND_API_KEY no está configurada');
 } else {
-  console.log('✅ Resend configurado correctamente');
+  // console.log('✅ Resend configurado correctamente');
 }
 
 // Función para enviar email de calificación baja
 export const sendLowRatingEmail = async (ratingData) => {
   const { name, email, rating, comments } = ratingData;
 
+  // const emailData = {
   const emailData = {
     from: process.env.EMAIL_FROM || 'onboarding@resend.dev', // Usa tu dominio verificado en Resend
     to: process.env.EMAIL_TO,
