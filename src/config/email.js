@@ -1,34 +1,24 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configurar el transportador de email
-export const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false, // true para 465, false para otros puertos
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Configurar Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verificar la conexión
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Error en la configuración de email:', error);
-  } else {
-    console.log('✅ Servidor de email listo para enviar mensajes');
-  }
-});
+// Verificar que la API key esté configurada
+if (!process.env.RESEND_API_KEY) {
+  console.error('❌ Error: RESEND_API_KEY no está configurada');
+} else {
+  console.log('✅ Resend configurado correctamente');
+}
 
 // Función para enviar email de calificación baja
 export const sendLowRatingEmail = async (ratingData) => {
   const { name, email, rating, comments } = ratingData;
 
-  const mailOptions = {
-    from: `"Sistema de Calificaciones" <${process.env.EMAIL_USER}>`,
+  const emailData = {
+    from: process.env.EMAIL_FROM || 'onboarding@resend.dev', // Usa tu dominio verificado en Resend
     to: process.env.EMAIL_TO,
     subject: `⚠️ Nueva Calificación Baja - ${rating} estrella${rating !== 1 ? 's' : ''}`,
     html: `
@@ -144,9 +134,15 @@ export const sendLowRatingEmail = async (ratingData) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email enviado:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const { data, error } = await resend.emails.send(emailData);
+    
+    if (error) {
+      console.error('❌ Error al enviar email:', error);
+      throw error;
+    }
+    
+    console.log('✅ Email enviado:', data.id);
+    return { success: true, messageId: data.id };
   } catch (error) {
     console.error('❌ Error al enviar email:', error);
     throw error;
