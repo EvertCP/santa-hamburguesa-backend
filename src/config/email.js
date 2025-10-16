@@ -17,10 +17,12 @@ if (!process.env.RESEND_API_KEY) {
 export const sendLowRatingEmail = async (ratingData) => {
   const { name, email, rating, comments } = ratingData;
 
-  // const emailData = {
+  // Soportar múltiples destinatarios separados por comas
+  const recipients = process.env.EMAIL_TO.split(',').map(e => e.trim());
+
   const emailData = {
-    from: process.env.EMAIL_FROM || 'onboarding@resend.dev', // Usa tu dominio verificado en Resend
-    to: process.env.EMAIL_TO,
+    from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+    to: recipients, // Puede ser un string o un array de emails verificado en Resend
     subject: `⚠️ Nueva Calificación Baja - ${rating} estrella${rating !== 1 ? 's' : ''}`,
     html: `
       <!DOCTYPE html>
