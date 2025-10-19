@@ -33,6 +33,7 @@ router.post('/submit-low-rating', async (req, res) => {
     }
 
     // Enviar email
+    
     const result = await sendLowRatingEmail({ name, email, rating, comments });
 
     res.status(200).json({

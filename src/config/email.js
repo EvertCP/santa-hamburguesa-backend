@@ -17,6 +17,19 @@ if (!process.env.RESEND_API_KEY) {
 export const sendLowRatingEmail = async (ratingData) => {
   const { name, email, rating, comments } = ratingData;
 
+  // Validar variables de entorno requeridas
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY no está configurada en las variables de entorno');
+  }
+
+  if (!process.env.EMAIL_TO) {
+    throw new Error('EMAIL_TO no está configurada en las variables de entorno');
+  }
+
+  if (!process.env.EMAIL_FROM) {
+    throw new Error('EMAIL_FROM no está configurada en las variables de entorno');
+  }
+
   // Soportar múltiples destinatarios separados por comas
   const recipients = process.env.EMAIL_TO.split(',').map(e => e.trim());
 
